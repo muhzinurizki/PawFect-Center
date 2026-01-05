@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Models\Booking;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -17,8 +19,13 @@ Route::get('/', function () {
 
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
+Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+Route::patch('/bookings/{booking}/status', [AdminController::class, 'updateStatus'])->name('bookings.updateStatus');
+
 Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
+    return Inertia::render('Dashboard', [
+        'bookings' => Booking::with('service')->latest()->get() ?? []
+    ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
