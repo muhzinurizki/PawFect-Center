@@ -3,6 +3,7 @@ import Navbar from '@/Components/Landing/Navbar';
 import Hero from '@/Components/Landing/Hero';
 import Stats from '@/Components/Landing/Stats';
 import Services from '@/Components/Landing/Services';
+import BookingWizard from '@/Components/Landing/BookingWizard';
 import Testimonials from '@/Components/Landing/Testimonials';
 import FAQ from '@/Components/Landing/FAQ';
 import Footer from '@/Components/Landing/Footer';
@@ -17,6 +18,7 @@ export default function Welcome({ auth }) {
                     <Hero />
                     <Stats />
                     <Services />
+                    <BookingWizard />
                     <Testimonials />
                     <FAQ />
                     {/* Booking Wizard akan diletakkan di sini */}
