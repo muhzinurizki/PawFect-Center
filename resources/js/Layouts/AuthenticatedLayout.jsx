@@ -1,175 +1,163 @@
-import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+import { Link, usePage } from '@inertiajs/react';
 import { 
-    LayoutDashboard, UserCircle, LogOut, Menu, X, 
-    PawPrint, Bell, Search, Settings, ChevronRight, 
-    CalendarCheck, Users, PieChart, Plus, HelpCircle
+    PawPrint as LogoIcon, 
+    LogOut, 
+    LayoutDashboard, 
+    FileText, 
+    Settings,
+    Menu,
+    X,
+    ChevronRight,
+    User
 } from 'lucide-react';
 
-export default function AuthenticatedLayout({ header, children }) {
-    const user = usePage().props.auth.user;
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+export default function AuthenticatedLayout({ user, header, children }) {
+    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+    const { url } = usePage();
 
-    const menuItems = [
-        { label: 'Overview', icon: LayoutDashboard, route: 'dashboard', active: 'dashboard' },
-        { label: 'Reservations', icon: CalendarCheck, route: 'dashboard', active: 'reservations.*' },
-        { label: 'Clients', icon: Users, route: 'dashboard', active: 'clients.*' },
-        { label: 'Analytics', icon: PieChart, route: 'dashboard', active: 'analytics' },
-    ];
+    // Effect untuk deteksi scroll agar navbar berubah style
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const isActive = (path) => url.startsWith(path);
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex font-sans selection:bg-orange-100 selection:text-orange-600">
-            {/* --- SLIM SIDEBAR (FIXED OVERFLOW) --- */}
-            <aside className={`fixed inset-y-0 left-0 z-50 bg-slate-900 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${
-                isSidebarOpen ? 'w-64' : 'w-[88px]'
-            } hidden lg:flex flex-col m-3 rounded-[2rem] shadow-xl overflow-hidden border border-white/5`}>
-                
-                {/* Logo Section */}
-                <div className="h-24 flex items-center px-[22px] overflow-hidden shrink-0">
-                    <div className="bg-orange-500 p-2.5 rounded-xl shadow-lg shadow-orange-500/40 shrink-0">
-                        <PawPrint className="w-5 h-5 text-white" />
-                    </div>
-                    <span className={`ml-4 font-black text-xl tracking-tighter text-white transition-all duration-300 whitespace-nowrap ${
-                        isSidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
-                    }`}>
-                        Paws<span className="text-orange-500">Hub.</span>
-                    </span>
-                </div>
-
-                {/* Navigation Links - Overflow Hidden to prevent scroll on collapse */}
-                <nav className="flex-1 px-3 space-y-1 mt-2 overflow-hidden">
-                    {menuItems.map((item) => {
-                        const active = route().current(item.active);
-                        return (
-                            <Link
-                                key={item.label}
-                                href={route(item.route)}
-                                className={`flex items-center h-12 rounded-xl transition-all duration-200 group relative overflow-hidden ${
-                                    active 
-                                    ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' 
-                                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-100'
-                                }`}
-                            >
-                                <div className="w-[64px] shrink-0 flex items-center justify-center">
-                                    <item.icon size={20} />
-                                </div>
-                                
-                                <span className={`font-bold text-[11px] uppercase tracking-[0.15em] whitespace-nowrap transition-opacity duration-200 ${
-                                    isSidebarOpen ? 'opacity-100' : 'opacity-0'
-                                }`}>
-                                    {item.label}
-                                </span>
-                            </Link>
-                        );
-                    })}
-                </nav>
-
-                {/* Profile & Logout Section */}
-                <div className="p-3 bg-black/20 shrink-0 overflow-hidden">
-                    <Link 
-                        href={route('profile.edit')}
-                        className={`flex items-center h-12 rounded-xl transition-all hover:bg-white/5 group ${
-                            route().current('profile.edit') ? 'bg-white/10' : ''
-                        }`}
-                    >
-                        <div className="w-[64px] shrink-0 flex items-center justify-center">
-                            <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-white font-black text-[10px] border border-white/10 group-hover:border-orange-500 transition-colors">
-                                {user.name.charAt(0).toUpperCase()}
-                            </div>
-                        </div>
-                        <div className={`transition-opacity duration-200 whitespace-nowrap ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
-                            <p className="text-[10px] font-black text-white uppercase tracking-tighter">{user.name}</p>
-                            <p className="text-[9px] font-bold text-slate-500 uppercase">Profile Settings</p>
-                        </div>
-                    </Link>
-                    
-                    <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
-                        className="w-full flex items-center h-12 mt-1 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-all"
-                    >
-                        <div className="w-[64px] shrink-0 flex items-center justify-center">
-                            <LogOut size={18} />
-                        </div>
-                        <span className={`font-black text-[10px] uppercase tracking-widest transition-opacity duration-200 ${
-                            isSidebarOpen ? 'opacity-100' : 'opacity-0'
-                        }`}>
-                            Sign Out
-                        </span>
-                    </Link>
-                </div>
-            </aside>
-
-            {/* --- MAIN AREA --- */}
-            <div className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'lg:ml-[272px]' : 'lg:ml-[112px]'}`}>
-                
-                {/* --- PROFESSIONAL TOPBAR --- */}
-                <header className="h-20 flex items-center justify-between px-8 sticky top-0 bg-white/80 backdrop-blur-xl z-40 border-b border-slate-100 shadow-sm shadow-slate-200/20">
-                    <div className="flex items-center gap-6">
-                        <button 
-                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 hover:text-orange-500 hover:bg-white transition-all shadow-sm active:scale-95"
-                        >
-                            {isSidebarOpen ? <Menu size={18} /> : <X size={18} />}
-                        </button>
+        <div className="min-h-screen bg-[#FDFDFD]">
+            {/* Navigasi Utama */}
+            <nav className={`fixed top-0 w-full z-[100] transition-all duration-300 ${
+                scrolled ? 'bg-white/80 backdrop-blur-md py-3 shadow-sm' : 'bg-transparent py-5'
+            }`}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center bg-white rounded-[2rem] px-6 py-3 shadow-xl shadow-slate-200/40 border border-slate-50">
                         
-                        {/* Quick Action: Create New (Helpful Function) */}
-                        <div className="hidden md:flex items-center gap-2 px-1.5 py-1.5 bg-slate-100 rounded-[14px] border border-slate-200/60 transition-all hover:bg-slate-200/40">
-                            <button className="flex items-center gap-2 px-4 py-1.5 bg-white text-slate-700 rounded-lg text-xs font-black uppercase tracking-widest shadow-sm hover:text-orange-600 transition-all">
-                                <Plus size={14} className="text-orange-500" /> New Booking
-                            </button>
-                            <button className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-                                <HelpCircle size={16} />
-                            </button>
-                        </div>
-                    </div>
+                        {/* Area Kiri: Brand & Menu */}
+                        <div className="flex items-center gap-8">
+                            <Link href="/dashboard" className="flex items-center gap-3 group">
+                                <div className="bg-gradient-to-br from-orange-400 to-orange-600 p-2.5 rounded-2xl shadow-lg shadow-orange-500/30 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                                    <LogoIcon className="text-white" size={20} />
+                                </div>
+                                <div className="hidden sm:block">
+                                    <h1 className="text-lg font-black tracking-tighter leading-none text-slate-900 uppercase">Paws Hub</h1>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.3em]">Professional</span>
+                                </div>
+                            </Link>
 
-                    <div className="flex items-center gap-4">
-                        {/* Search Bar Utility */}
-                        <div className="hidden lg:flex items-center relative group">
-                            <Search size={16} className="absolute left-4 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
-                            <input 
-                                type="text" 
-                                placeholder="Cari data anabul..." 
-                                className="bg-slate-50 border-slate-200 border rounded-xl pl-11 pr-4 py-2 text-xs font-bold w-64 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 focus:bg-white transition-all"
-                            />
-                        </div>
-
-                        <div className="h-8 w-px bg-slate-100 mx-2" />
-
-                        {/* Notifications */}
-                        <button className="relative p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 hover:text-orange-500 hover:bg-white transition-all">
-                            <Bell size={18} />
-                            <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white shadow-sm animate-pulse"></span>
-                        </button>
-
-                        {/* Profile Summary Tool */}
-                        <div className="hidden sm:flex flex-col items-end leading-none">
-                            <span className="text-[11px] font-black text-slate-900 uppercase tracking-tighter">{user.name}</span>
-                            <span className="text-[9px] font-bold text-emerald-500 uppercase mt-1">Online</span>
-                        </div>
-                    </div>
-                </header>
-
-                <main className="p-8 pt-4 animate-in fade-in slide-in-from-top-2 duration-700">
-                    {header && (
-                        <div className="mb-8 border-b border-slate-100 pb-6 flex items-center justify-between">
-                            <div>{header}</div>
-                            {/* Breadcrumb style indicator */}
-                            <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                                <span className="hover:text-orange-500 cursor-pointer transition-colors">Admin</span>
-                                <ChevronRight size={10} />
-                                <span className="text-slate-900 font-black italic underline decoration-orange-500/30">Current View</span>
+                            {/* Navigasi Desktop */}
+                            <div className="hidden md:flex items-center gap-1">
+                                <NavLink 
+                                    href={route('dashboard')} 
+                                    active={isActive('/dashboard')} 
+                                    icon={<LayoutDashboard size={16} />}
+                                    label="Console" 
+                                />
+                                <NavLink 
+                                    href={route('invoices.index')} 
+                                    active={isActive('/invoices')} 
+                                    icon={<FileText size={16} />}
+                                    label="Invoices" 
+                                />
                             </div>
                         </div>
-                    )}
-                    
-                    <div className="max-w-[1600px] mx-auto">
-                        {children}
+
+                        {/* Area Kanan: User & LogOut */}
+                        <div className="hidden md:flex items-center gap-5">
+                            <div className="flex items-center gap-3 pr-2 border-r border-slate-100">
+                                <div className="text-right">
+                                    <p className="text-xs font-black text-slate-900">{user?.name || 'Admin'}</p>
+                                    <p className="text-[10px] font-bold text-orange-500 uppercase tracking-tighter italic">Manager</p>
+                                </div>
+                                <div className="w-10 h-10 bg-slate-100 rounded-2xl flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+                                    <User size={20} className="text-slate-400" />
+                                </div>
+                            </div>
+                            
+                            <Link 
+                                href={route('logout')} 
+                                method="post" 
+                                as="button" 
+                                className="p-3 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-2xl transition-all border border-transparent hover:border-rose-100 group"
+                            >
+                                <LogOut size={20} className="group-hover:-translate-x-1 transition-transform" />
+                            </Link>
+                        </div>
+
+                        {/* Tombol Mobile */}
+                        <div className="md:hidden">
+                            <button
+                                onClick={() => setShowingNavigationDropdown(!showingNavigationDropdown)}
+                                className="p-2 rounded-xl text-slate-500 hover:bg-slate-50 transition-colors"
+                            >
+                                {showingNavigationDropdown ? <X size={24} /> : <Menu size={24} />}
+                            </button>
+                        </div>
                     </div>
+                </div>
+
+                {/* Navigasi Mobile Dropdown */}
+                <div className={`absolute top-full left-0 w-full px-4 mt-2 transition-all duration-300 ease-in-out ${
+                    showingNavigationDropdown ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
+                }`}>
+                    <div className="bg-white rounded-[2rem] p-4 shadow-2xl border border-slate-50 space-y-2">
+                        <MobileNavLink href={route('dashboard')} active={isActive('/dashboard')} label="Dashboard Console" />
+                        <MobileNavLink href={route('invoices.index')} active={isActive('/invoices')} label="E-Invoice Archive" />
+                        <div className="pt-2 border-t border-slate-50">
+                            <Link href={route('logout')} method="post" as="button" className="w-full text-left px-5 py-4 rounded-2xl font-black text-xs text-rose-500 bg-rose-50/50 flex justify-between items-center uppercase tracking-widest">
+                                Sign Out <LogOut size={16} />
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Konten Halaman */}
+            <div className="pt-32 pb-20">
+                {header && (
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+                        <div className="relative">
+                            <div className="absolute -left-4 top-0 w-1 h-full bg-orange-500 rounded-full"></div>
+                            {header}
+                        </div>
+                    </div>
+                )}
+
+                <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {children}
                 </main>
             </div>
         </div>
+    );
+}
+
+// Sub-komponen agar kode bersih
+function NavLink({ href, active, icon, label }) {
+    return (
+        <Link 
+            href={href} 
+            className={`px-5 py-2.5 rounded-2xl text-[11px] font-black transition-all duration-300 flex items-center gap-2 uppercase tracking-widest ${
+                active 
+                ? 'bg-slate-900 text-white shadow-lg shadow-slate-900/20 scale-105' 
+                : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+            }`}
+        >
+            {icon} {label}
+        </Link>
+    );
+}
+
+function MobileNavLink({ href, active, label }) {
+    return (
+        <Link 
+            href={href} 
+            className={`flex justify-between items-center px-5 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all ${
+                active ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' : 'text-slate-600 bg-slate-50'
+            }`}
+        >
+            {label} <ChevronRight size={16} />
+        </Link>
     );
 }
