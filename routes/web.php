@@ -68,6 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 3. Management Status Booking
     Route::patch('/bookings/{booking}/status', [AdminController::class, 'updateStatus'])->name('bookings.updateStatus');
+    Route::get('/admin/export-csv', [AdminController::class, 'exportCsv'])->name('admin.export');
 
     // 4. Profile Management
     Route::controller(ProfileController::class)->group(function () {
