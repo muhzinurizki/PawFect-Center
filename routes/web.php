@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PetController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Models\Booking;
@@ -69,6 +70,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // 3. Management Status Booking
     Route::patch('/bookings/{booking}/status', [AdminController::class, 'updateStatus'])->name('bookings.updateStatus');
     Route::get('/admin/export-csv', [AdminController::class, 'exportCsv'])->name('admin.export');
+
+    // PET MANAJEMEN
+    Route::resource('admin/pets', PetController::class)->names([
+        'index' => 'pets.index',
+        'store' => 'pets.store',
+        'update' => 'pets.update',
+        'destroy' => 'pets.destroy',
+    ]);
 
     // 4. Profile Management
     Route::controller(ProfileController::class)->group(function () {

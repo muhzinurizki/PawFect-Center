@@ -42,6 +42,17 @@ class AdminController extends Controller
                 'status' => 'Transaksi yang sudah selesai tidak dapat diubah kembali menjadi pending/cancelled.',
             ]);
         }
+        
+        if ($validated['status'] === 'confirmed') {
+    \App\Models\Pet::firstOrCreate(
+        ['name' => $booking->pet_name, 'owner_phone' => $booking->customer_phone],
+        [
+            'type' => 'Cat/Dog', // Anda bisa menambah input type di form booking nanti
+            'owner_name' => $booking->customer_name,
+            'notes' => 'Registered from booking #' . $booking->booking_code
+        ]
+    );
+}
 
         try {
             DB::beginTransaction();
